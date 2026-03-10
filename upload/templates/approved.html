@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Approved Products
+{% endblock title %}
+
+{% block extra_head %}
+<style>
+  body { font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; color: #333; }
+  header { background-color: #4CAF50; color: white; text-align: center; padding: 15px; font-size: 24px; }
+  main { max-width: 1100px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  h2 { color: #4CAF50; }
+  form input, form select, button { padding: 6px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+  button { background-color: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+  button:hover { background-color: #45a049; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+  th { background-color: #f2f2f2; }
+  tr:nth-child(even) { background-color: #fafafa; }
+  tr:hover { background-color: #f1f7ff; }
+  .pagination { margin-top: 15px; }
+  .pagination a { padding: 6px 12px; margin-right: 5px; border: 1px solid #ccc; border-radius: 4px; background-color: white; color: #4CAF50; text-decoration: none; }
+  .pagination a:hover { background-color: #4CAF50; color: white; }
+</style>
+{% endblock extra_head %}
+
+
+
+{% block content %}
+<header>Approved Products</header>
+<main>
+
+<h2>Filter & Search</h2>
+<form action="{% url 'approved' %}" method="get">
+  <input type="text" placeholder="Search name or category" name="search">
+  From: <input type="date" name="from">
+  To: <input type="date" name="to">
+  <select name="per_page">
+    <option value="5" {% if request.GET.per_page == "5" %}selected{% endif %} >5 per page</option>
+    <option value="10" {% if request.GET.per_page == "10" %}selected{% endif %} >10 per page</option>
+    <option value="25" {% if request.GET.per_page == "25" %}selected{% endif %} >25 per page</option>
+  </select>
+  <button type="submit">Filter</button>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Product ID</th>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Price</th>
+      <th>Quantity</th>
+      <th>Last Updated</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in page_obj %}
+    <tr>
+      <td>{{ product.product_id }}</td>
+      <td>{{ product.name }}</td>
+      <td>{{ product.category }}</td>
+      <td>{{ product.price }}</td>
+      <td>{{ product.quantity }}</td>
+      <td>{{ product.updated_at|timesince }} ago</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  
+  <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
+</main>
+
+{% endblock content %}

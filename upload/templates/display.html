@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Draft & Upload
+{% endblock title %}
+
+{% block extra_head %}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  header {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 24px;
+  }
+  main {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  h2 { color: #4CAF50; }
+  form {
+    margin-bottom: 20px;
+  }
+  input[type="file"], input[type="text"], input[type="date"], select {
+    padding: 6px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover { background-color: #45a049; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  th { background-color: #f2f2f2; }
+  tr:nth-child(even) { background-color: #fafafa; }
+  tr:hover { background-color: #f1f7ff; }
+  .pagination {
+    margin-top: 15px;
+  }
+  .pagination a {
+    padding: 6px 12px;
+    margin-right: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #4CAF50;
+    text-decoration: none;
+  }
+  .pagination a:hover {
+    background-color: #4CAF50;
+    color: white;
+  }
+  .message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #4CAF50;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+</style>
+{% endblock extra_head %}
+
+
+
+{% block content %}
+<header>Draft & Upload</header>
+<main>
+
+<a href="{% url 'approved' %}" 
+  style="display:inline-block;padding:10px 20px;background:#28a745;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">
+  Approved Products
+</a>
+
+<h2>Upload CSV File</h2>
+<div class="message">Success: File uploaded successfully!</div>
+<form action="{% url 'excel_file' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <label>Choose CSV File:</label>
+  <input type="file" name="excel_file" accept=".xlsx">
+  <button type="submit">Upload</button>
+</form>
+
+<hr>
+
+<h2>Products</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Product ID</th>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Price</th>
+      <th>Quantity</th>
+      <th>Last Updated</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in page_obj %}
+    <tr>
+      <td>{{ product.product_id }}</td>
+      <td>{{ product.name }}</td>
+      <td>{{ product.category }}</td>
+      <td>{{ product.price }}</td>
+      <td>{{ product.quantity }}</td>
+      <td>{{ product.updated_at|timesince }}</td>
+      <td {%if product.status == 'draft' %} style="color: red;" {% elif product.status == 'approved' %} style="color: green;" {% endif %}>{{ product.status }}</td>
+      <td>
+        {% if product.status == 'draft' %}
+          <form action="{% url 'display' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="product_id" value="{{ product.product_id }}">
+              <input type="hidden" name="choice" value="approved">
+              <button type="submit">Approve</button>
+          </form>
+        {% endif %}
+        {% if product.status == 'approved' %}
+          <form action="{% url 'display' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="product_id" value="{{ product.product_id }}">
+              <input type="hidden" name="choice" value="draft">
+              <button type="submit" style="color: white; background-color: red;">Draft</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+
+  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
+</main>
+{% endblock content %}
