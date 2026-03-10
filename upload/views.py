@@ -1,6 +1,6 @@
 from django.http import request
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
-from .models import Product, ExcelFile
+from .models import Product
 from django.core.paginator import Paginator
 import openpyxl
 from django.db.models import Q

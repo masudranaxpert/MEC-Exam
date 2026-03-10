@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, ExcelFile
+from .models import Product
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -7,9 +7,4 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['status']
     search_fields = ['product_id', 'name', 'category']
 
-
-@admin.register(ExcelFile)
-class ExcelFileAdmin(admin.ModelAdmin):
-    list_display = ['file']
-    search_fields = ['file']
 
